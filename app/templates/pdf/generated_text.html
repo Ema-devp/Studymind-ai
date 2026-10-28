@@ -1,0 +1,12 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ title }} — {{ pdf.title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">{{ title }}</h2>
+<div class="card">
+  <div class="answer-card-body" id="generated-content"></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>document.getElementById('generated-content').innerHTML = marked.parse({{ content|tojson }});</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "layout_app.html" %}
+{% block title %}Search — StudyMind AI{% endblock %}
+{% block content %}
+
+<h2 class="mb-24">Search results for "{{ query }}"</h2>
+
+{% if not query %}
+  <div class="empty-state"><div>Type something in the search box above to search your PDFs, chats, and flashcards.</div></div>
+{% else %}
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>📄 PDFs <span class="badge">{{ results.pdfs|length }}</span></h3>
+      {% for pdf in results.pdfs %}
+        <a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" style="display:block; padding:8px 0; border-bottom:1px solid var(--border);">
+          <div style="font-weight:600; font-size:14px;">{{ pdf.title }}</div>
+          <div class="text-sm text-muted">{{ pdf.page_count }} pages</div>
+        </a>
+      {% else %}
+        <p class="text-sm">No PDFs matched.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h3>💬 Chats <span class="badge">{{ results.chats|length }}</span></h3>
+      {% for chat in results.chats %}
+        <a href="{{ url_for('chat.view', chat_id=chat.id) }}" style="display:block; padding:8px 0; border-bottom:1px solid var(--border);">
+          <div style="font-weight:600; font-size:14px;">{{ chat.title }}</div>
+          <div class="text-sm text-muted">{{ chat.pdf.title }}</div>
+        </a>
+      {% else %}
+        <p class="text-sm">No chats matched.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h3>✉️ Messages <span class="badge">{{ results.messages|length }}</span></h3>
+      {% for msg in results.messages %}
+        <a href="{{ url_for('chat.view', chat_id=msg.chat_id) }}" style="display:block; padding:8px 0; border-bottom:1px solid var(--border);">
+          <div class="text-sm">{{ msg.content[:120] }}{{ '…' if msg.content|length > 120 else '' }}</div>
+        </a>
+      {% else %}
+        <p class="text-sm">No messages matched.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h3>🗂️ Flashcard Sets <span class="badge">{{ results.flashcard_sets|length }}</span></h3>
+      {% for set in results.flashcard_sets %}
+        <a href="{{ url_for('ai.view_flashcard_set', set_id=set.id) }}" style="display:block; padding:8px 0; border-bottom:1px solid var(--border);">
+          <div style="font-weight:600; font-size:14px;">{{ set.title }}</div>
+        </a>
+      {% else %}
+        <p class="text-sm">No flashcard sets matched.</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "auth/_auth_base.html" %}
+{% block title %}Log in — StudyMind AI{% endblock %}
+{% block auth_content %}
+<h2 class="text-center">Welcome back</h2>
+<p class="text-center text-sm">Log in to continue chatting with your documents.</p>
+
+<form method="POST" action="{{ url_for('auth.login') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" value="{{ email or '' }}" required autofocus>
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+  <div class="flex-between mb-16" style="font-size:13px;">
+    <label class="flex gap-8" style="align-items:center; color:var(--text-secondary);">
+      <input type="checkbox" name="remember" style="width:auto;"> Remember me
+    </label>
+    <a href="{{ url_for('auth.forgot_password') }}" class="text-sm">Forgot password?</a>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Log In</button>
+</form>
+
+{% if show_resend %}
+<div class="card mt-16" style="padding:16px;">
+  <p class="text-sm" style="margin:0 0 10px;">Didn't get the verification email?</p>
+  <form method="POST" action="{{ url_for('auth.resend_verification_public') }}" class="flex gap-8">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="email" name="email" value="{{ email or '' }}" placeholder="your@email.com" required style="flex:1;">
+    <button type="submit" class="btn btn-secondary btn-sm">Resend</button>
+  </form>
+</div>
+{% endif %}
+
+<p class="text-center text-sm mt-24">Don't have an account? <a href="{{ url_for('auth.register') }}" style="color:var(--brand-1);font-weight:600;">Sign up</a></p>
+{% endblock %}

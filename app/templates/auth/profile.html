@@ -1,0 +1,53 @@
+{% extends "layout_app.html" %}
+{% block title %}Profile — StudyMind AI{% endblock %}
+{% block content %}
+<div class="flex-between mb-24">
+  <div>
+    <h2>Profile</h2>
+    <p class="text-sm">Manage your personal information.</p>
+  </div>
+</div>
+
+<div class="grid grid-2" style="max-width:900px;">
+  <div class="card">
+    <h3>Personal Info</h3>
+    <form method="POST" action="{{ url_for('auth.profile') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" value="{{ current_user.name }}" required>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" value="{{ current_user.email }}" disabled>
+        <div class="helper-text">
+          {% if current_user.is_email_verified %}
+            <span class="badge badge-success">Verified</span>
+          {% else %}
+            <span class="badge badge-warning">Not verified</span>
+            <form action="{{ url_for('auth.resend_verification') }}" method="POST" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="margin-left:6px;">Resend verification email</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      <div class="field">
+        <label for="avatar_url">Avatar URL</label>
+        <input type="text" id="avatar_url" name="avatar_url" value="{{ current_user.avatar_url or '' }}" placeholder="https://…">
+      </div>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Your Stats</h3>
+    <div class="flex-between mb-16"><span class="text-muted">Study Streak</span><strong>🔥 {{ current_user.study_streak }} days</strong></div>
+    <div class="flex-between mb-16"><span class="text-muted">Total PDFs</span><strong>{{ current_user.pdfs.count() }}</strong></div>
+    <div class="flex-between mb-16"><span class="text-muted">Total Conversations</span><strong>{{ current_user.chats.count() }}</strong></div>
+    <div class="flex-between"><span class="text-muted">Member Since</span><strong>{{ current_user.created_at|datetime('%b %Y') }}</strong></div>
+    <div class="divider"></div>
+    <a href="{{ url_for('settings.security') }}" class="btn btn-secondary btn-block">Security Settings</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+# --- Core web framework ---
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-Migrate==4.0.7
+Flask-WTF==1.2.1
+Flask-Limiter==3.8.0
+Flask-Mail==0.10.0
+Werkzeug==3.0.4
+
+# --- Database ---
+SQLAlchemy==2.0.35
+# psycopg2-binary==2.9.9   # uncomment when migrating to PostgreSQL
+
+# --- AI / RAG providers (install the ones you actually use) ---
+google-genai==0.3.0          # Gemini - default provider
+openai==1.51.0                # optional: set OPENAI_API_KEY to use instead
+anthropic==0.39.0             # optional: set ANTHROPIC_API_KEY to use instead (chat only, no embeddings)
+faiss-cpu==1.8.0
+numpy==1.26.4
+
+# --- PDF processing ---
+PyMuPDF==1.24.10
+
+# --- Optional / used by select AI features ---
+langchain==0.2.16
+Markdown==3.6
+reportlab==4.2.2
+pandas==2.2.2
+
+# --- Utilities ---
+python-dotenv==1.0.1
+gunicorn==22.0.0

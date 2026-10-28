@@ -1,0 +1,26 @@
+{% extends "layout_app.html" %}
+{% block title %}Security — StudyMind AI{% endblock %}
+{% block content %}
+<a href="{{ url_for('settings.index') }}" class="text-sm" style="color:var(--brand-1);">← Back to Settings</a>
+<h2 class="mt-16 mb-24">Security</h2>
+
+<div class="card" style="max-width:480px;">
+  <h3>Change Password</h3>
+  <form method="POST" action="{{ url_for('settings.security') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="current_password">Current password</label>
+      <input type="password" id="current_password" name="current_password" required>
+    </div>
+    <div class="field">
+      <label for="new_password">New password</label>
+      <input type="password" id="new_password" name="new_password" required>
+    </div>
+    <div class="field">
+      <label for="confirm_password">Confirm new password</label>
+      <input type="password" id="confirm_password" name="confirm_password" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Update Password</button>
+  </form>
+</div>
+{% endblock %}

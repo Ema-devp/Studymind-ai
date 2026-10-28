@@ -1,0 +1,141 @@
+/* =========================================================
+   Ask StudyMind - floating assistant widget
+   ========================================================= */
+
+.assistant-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 28px rgba(124, 92, 255, 0.45);
+  z-index: 150;
+  transition: transform 180ms cubic-bezier(.4,0,.2,1);
+  color: #0B0B14;
+}
+.assistant-fab:hover { transform: scale(1.06); }
+.assistant-fab:active { transform: scale(0.96); }
+.assistant-fab svg { width: 26px; height: 26px; }
+.assistant-fab.is-open svg.icon-chat { display: none; }
+.assistant-fab:not(.is-open) svg.icon-close { display: none; }
+
+.assistant-panel {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 540px;
+  max-height: calc(100vh - 140px);
+  border-radius: var(--radius-xl);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 149;
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.assistant-panel.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.assistant-header .avatar { width: 30px; height: 30px; font-size: 12px; }
+.assistant-header-title { font-weight: 700; font-size: 14px; }
+.assistant-header-subtitle { font-size: 11.5px; color: var(--text-muted); }
+.assistant-header-actions { margin-left: auto; display: flex; gap: 4px; }
+.assistant-header-actions button {
+  background: transparent; border: none; color: var(--text-muted);
+  width: 28px; height: 28px; border-radius: var(--radius-sm); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.assistant-header-actions button:hover { background: var(--surface); color: var(--text-primary); }
+
+.assistant-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assistant-msg { display: flex; gap: 8px; max-width: 90%; }
+.assistant-msg.user { margin-left: auto; flex-direction: row-reverse; }
+.assistant-msg .avatar { width: 24px; height: 24px; font-size: 10px; flex-shrink: 0; }
+.assistant-bubble {
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  line-height: 1.55;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.assistant-msg.user .assistant-bubble { background: var(--surface-strong); }
+.assistant-bubble p:last-child { margin-bottom: 0; }
+.assistant-bubble code { background: var(--surface-strong); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.assistant-bubble pre { background: var(--bg-2); padding: 10px; border-radius: var(--radius-sm); overflow-x: auto; font-size: 12px; }
+
+.assistant-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 30px 16px;
+}
+
+.assistant-typing { display: flex; gap: 4px; padding: 8px 12px; }
+.assistant-typing span {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+.assistant-typing span:nth-child(2) { animation-delay: .15s; }
+.assistant-typing span:nth-child(3) { animation-delay: .3s; }
+
+.assistant-input-bar {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+.assistant-input-inner {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 8px 8px 8px 12px;
+}
+.assistant-input-inner textarea {
+  border: none; background: transparent; resize: none; max-height: 100px;
+  padding: 4px 0; font-size: 13.5px;
+}
+.assistant-input-inner textarea:focus { outline: none; background: transparent; }
+.assistant-send-btn {
+  width: 32px; height: 32px; border-radius: var(--radius-sm); flex-shrink: 0;
+  background: var(--brand-gradient); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #0B0B14;
+}
+.assistant-send-btn:disabled { opacity: .4; cursor: not-allowed; }
+.assistant-send-btn svg { width: 15px; height: 15px; }
+
+@media (max-width: 480px) {
+  .assistant-panel { right: 12px; left: 12px; width: auto; bottom: 84px; }
+  .assistant-fab { right: 16px; bottom: 16px; }
+}

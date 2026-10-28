@@ -1,0 +1,34 @@
+{% extends "layout_app.html" %}
+{% block title %}Flashcards — {{ pdf.title }}{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">🗂️ Flashcards</h2>
+
+<div class="card mb-24" style="max-width:520px;">
+  <h3>Generate New Set</h3>
+  <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="count">Number of cards</label>
+      <input type="number" id="count" name="count" value="12" min="4" max="40">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Generate Flashcards</button>
+  </form>
+</div>
+
+<h3 class="mb-16">Existing Sets</h3>
+{% if existing_sets %}
+<div class="grid grid-3">
+  {% for s in existing_sets %}
+  <a href="{{ url_for('ai.view_flashcard_set', set_id=s.id) }}" class="card">
+    <strong>{{ s.title }}</strong>
+    <p class="text-sm" style="margin:6px 0 0;">{{ s.cards.count() }} cards · {{ s.created_at|time_ago }}</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div>No flashcard sets yet. Generate your first one above.</div></div>
+{% endif %}
+
+{% endblock %}

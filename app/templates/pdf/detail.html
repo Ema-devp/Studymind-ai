@@ -1,0 +1,162 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ pdf.title }} — StudyMind AI{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-24" style="align-items:flex-start;">
+  <div class="flex gap-16" style="align-items:flex-start;">
+    <div style="font-size:40px;">📄</div>
+    <div>
+      <h2 style="margin-bottom:4px;">{{ pdf.title }}</h2>
+      <div class="text-sm text-muted">
+        {{ pdf.page_count }} pages · {{ pdf.file_size_bytes|filesize }} · {{ pdf.chunk_count }} chunks · uploaded {{ pdf.created_at|time_ago }}
+      </div>
+      <div class="mt-8">
+        {% if pdf.processing_status.value == 'completed' %}<span class="badge badge-success">Ready to chat</span>
+        {% elif pdf.processing_status.value == 'processing' %}<span class="badge badge-warning">Processing…</span>
+        {% elif pdf.processing_status.value == 'failed' %}<span class="badge badge-danger">Processing failed</span>
+        {% else %}<span class="badge">Pending</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="flex gap-8">
+    <form action="{{ url_for('pdf.toggle_favorite', pdf_id=pdf.id) }}" method="POST" id="fav-form" style="display:inline;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-secondary btn-icon" title="Favorite">{{ '⭐' if pdf.is_favorite else '☆' }}</button>
+    </form>
+    <a href="{{ url_for('pdf.download', pdf_id=pdf.id) }}" class="btn btn-secondary btn-icon" title="Download">⬇</a>
+    <form action="{{ url_for('pdf.delete', pdf_id=pdf.id) }}" method="POST" data-confirm="Delete this PDF and all associated chats/flashcards?">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger btn-icon" title="Delete">🗑</button>
+    </form>
+  </div>
+</div>
+
+{% if pdf.processing_status.value == 'failed' %}
+<div class="card mb-24" style="border-color:var(--danger);">
+  <strong style="color:var(--danger);">Processing failed:</strong> <span class="text-sm">{{ pdf.processing_error }}</span>
+  <form action="{{ url_for('pdf.reprocess', pdf_id=pdf.id) }}" method="POST" class="mt-16">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-secondary btn-sm">Retry Processing</button>
+  </form>
+</div>
+{% endif %}
+
+{% if pdf.processing_status.value == 'completed' %}
+
+<div class="card mb-24">
+  <div class="flex-between">
+    <div>
+      <h3 style="margin-bottom:4px;">💬 Chat with this document</h3>
+      <p class="text-sm" style="margin:0;">Ask questions and get dual answers: grounded in the PDF, plus a simple AI explanation.</p>
+    </div>
+    <a href="{{ url_for('chat.new_chat', pdf_id=pdf.id) }}" class="btn btn-primary">Start New Chat</a>
+  </div>
+</div>
+
+<h3 class="mb-16">AI Study Tools</h3>
+<div class="grid grid-4 mb-24">
+  <a href="{{ url_for('ai.summary', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">📝</div><strong>Summary</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Short, detailed, or bullet-point summaries</p>
+  </a>
+  <a href="{{ url_for('ai.flashcards', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">🗂️</div><strong>Flashcards</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Auto-generated term/definition cards</p>
+  </a>
+  <a href="{{ url_for('ai.quiz', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">✅</div><strong>Quiz</strong>
+    <p class="text-sm" style="margin:6px 0 0;">MCQ, True/False, Fill-in-the-blank</p>
+  </a>
+  <a href="{{ url_for('ai.study_notes', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">📓</div><strong>Study Notes</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Structured revision notes</p>
+  </a>
+  <a href="{{ url_for('ai.mind_map', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">🧠</div><strong>Mind Map</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Visual topic breakdown</p>
+  </a>
+  <a href="{{ url_for('ai.eli10', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">🧒</div><strong>Explain Like I'm 10</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Simplify any concept</p>
+  </a>
+  <a href="{{ url_for('ai.important_questions', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">❓</div><strong>Important Questions</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Likely exam questions</p>
+  </a>
+  <a href="{{ url_for('ai.interview_questions', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">🎤</div><strong>Interview Prep</strong>
+    <p class="text-sm" style="margin:6px 0 0;">Interview-style Q&A</p>
+  </a>
+  <a href="{{ url_for('ai.learning_objectives', pdf_id=pdf.id) }}" class="card">
+    <div style="font-size:24px;">🎯</div><strong>Learning Objectives</strong>
+    <p class="text-sm" style="margin:6px 0 0;">What you should learn</p>
+  </a>
+</div>
+
+<div class="grid grid-2 mb-24">
+  <div class="card">
+    <h3>Difficulty Analysis</h3>
+    <div data-difficulty-result class="text-sm text-muted">Click to analyze this document's difficulty level.</div>
+    <button class="btn btn-secondary btn-sm mt-16" id="analyze-difficulty-btn">Analyze</button>
+  </div>
+  <div class="card">
+    <h3>Topics & Keywords</h3>
+    <div data-topics-result class="text-sm text-muted">
+      {% if pdf.topics_list() %}
+        {% for t in pdf.topics_list() %}<span class="badge badge-brand" style="margin:2px;">{{ t }}</span>{% endfor %}
+      {% else %}Click to extract topics and keywords.{% endif %}
+    </div>
+    <button class="btn btn-secondary btn-sm mt-16" id="extract-topics-btn">Extract</button>
+  </div>
+</div>
+
+<h3 class="mb-16">Conversations</h3>
+{% if pdf.chats.count() %}
+<div class="grid grid-3">
+  {% for c in pdf.chats %}
+  <a href="{{ url_for('chat.view', chat_id=c.id) }}" class="card">
+    <div class="flex-between">
+      <strong style="font-size:14px;">{{ c.title }}</strong>
+      {% if c.is_pinned %}<span>📌</span>{% endif %}
+    </div>
+    <p class="text-sm" style="margin:6px 0 0;">{{ c.messages.count() }} messages · {{ c.updated_at|time_ago }}</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div>No conversations yet for this document.</div></div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <div style="font-size:40px;">⏳</div>
+  <p>This document is still being processed. This page will update once it's ready.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('analyze-difficulty-btn')?.addEventListener('click', async (e) => {
+  e.target.disabled = true; e.target.textContent = 'Analyzing…';
+  const res = await fetch("{{ url_for('ai.difficulty_analysis', pdf_id=pdf.id) }}");
+  const data = await res.json();
+  const el = document.querySelector('[data-difficulty-result]');
+  if (data.success) {
+    el.innerHTML = `<span class="badge badge-brand">${data.data.level}</span><p class="mt-8">${data.data.reasoning}</p><p class="text-muted">Estimated study time: ${data.data.estimated_study_minutes} min</p>`;
+  }
+  e.target.style.display = 'none';
+});
+document.getElementById('extract-topics-btn')?.addEventListener('click', async (e) => {
+  e.target.disabled = true; e.target.textContent = 'Extracting…';
+  const res = await fetch("{{ url_for('ai.topics_keywords', pdf_id=pdf.id) }}");
+  const data = await res.json();
+  const el = document.querySelector('[data-topics-result]');
+  if (data.success) {
+    el.innerHTML = data.data.topics.map(t => `<span class="badge badge-brand" style="margin:2px;">${t}</span>`).join('');
+  }
+  e.target.style.display = 'none';
+});
+</script>
+{% endblock %}

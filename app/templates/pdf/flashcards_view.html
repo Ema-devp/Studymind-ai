@@ -1,0 +1,61 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ fc_set.title }} — StudyMind AI{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('pdf.detail', pdf_id=fc_set.pdf_id) }}" class="text-sm" style="color:var(--brand-1);">← Back</a>
+<div class="flex-between mt-16 mb-24">
+  <h2 style="margin:0;">{{ fc_set.title }}</h2>
+  <span class="badge">Card <span id="card-index">1</span> / {{ cards|length }}</span>
+</div>
+
+{% if cards %}
+<div class="flex-center" style="perspective:1200px;">
+  <div id="flip-card" style="width:100%; max-width:560px; height:300px; cursor:pointer; position:relative; transform-style:preserve-3d; transition:transform .5s;">
+    <div class="card flex-center" style="position:absolute; inset:0; backface-visibility:hidden; text-align:center; font-size:19px; font-weight:600; padding:32px;">
+      <div id="card-front"></div>
+    </div>
+    <div class="card flex-center" style="position:absolute; inset:0; backface-visibility:hidden; transform:rotateY(180deg); text-align:center; font-size:16px; padding:32px; background:var(--surface-strong);">
+      <div id="card-back"></div>
+    </div>
+  </div>
+</div>
+<p class="text-center text-sm mt-16">Click the card to flip it</p>
+
+<div class="flex-center gap-16 mt-24">
+  <button class="btn btn-secondary" id="prev-btn">← Previous</button>
+  <span class="badge" id="difficulty-badge"></span>
+  <button class="btn btn-secondary" id="next-btn">Next →</button>
+</div>
+{% else %}
+<div class="empty-state"><div>This set has no cards.</div></div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const CARDS = [
+  {% for c in cards %}{ front: {{ c.front|tojson }}, back: {{ c.back|tojson }}, difficulty: {{ c.difficulty|tojson }} }{{ ',' if not loop.last }}{% endfor %}
+];
+let idx = 0;
+const flipCard = document.getElementById('flip-card');
+const front = document.getElementById('card-front');
+const back = document.getElementById('card-back');
+const indexLabel = document.getElementById('card-index');
+const diffBadge = document.getElementById('difficulty-badge');
+
+function render() {
+  if (!CARDS.length) return;
+  flipCard.style.transform = 'rotateY(0deg)';
+  front.textContent = CARDS[idx].front;
+  back.textContent = CARDS[idx].back;
+  indexLabel.textContent = idx + 1;
+  diffBadge.textContent = CARDS[idx].difficulty;
+}
+flipCard?.addEventListener('click', () => {
+  flipCard.style.transform = flipCard.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+});
+document.getElementById('next-btn')?.addEventListener('click', () => { idx = (idx + 1) % CARDS.length; render(); });
+document.getElementById('prev-btn')?.addEventListener('click', () => { idx = (idx - 1 + CARDS.length) % CARDS.length; render(); });
+render();
+</script>
+{% endblock %}

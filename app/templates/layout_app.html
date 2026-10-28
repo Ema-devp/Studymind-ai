@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <span class="brand-text">StudyMind AI</span>
+      <button class="btn btn-ghost btn-icon" style="margin-left:auto" data-sidebar-collapse title="Collapse sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <nav>
+      <a href="{{ url_for('dashboard.index') }}" class="nav-link {{ 'active' if request.endpoint == 'dashboard.index' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span class="sidebar-label">Dashboard</span>
+      </a>
+      <a href="{{ url_for('pdf.library') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('pdf.') }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span class="sidebar-label">My PDFs</span>
+      </a>
+      <a href="{{ url_for('search.index') }}" class="nav-link {{ 'active' if request.endpoint == 'search.index' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span class="sidebar-label">Search</span>
+      </a>
+
+      <div class="sidebar-section-title">Study Tools</div>
+      <a href="{{ url_for('pdf.upload') }}" class="nav-link {{ 'active' if request.endpoint == 'pdf.upload' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <span class="sidebar-label">Upload PDF</span>
+      </a>
+
+      <div class="sidebar-section-title">Account</div>
+      <a href="{{ url_for('auth.profile') }}" class="nav-link {{ 'active' if request.endpoint == 'auth.profile' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="sidebar-label">Profile</span>
+      </a>
+      <a href="{{ url_for('settings.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('settings.') }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="sidebar-label">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="flex gap-12" style="align-items:center; padding:10px 12px;">
+        <div class="avatar assistant" style="width:32px;height:32px;font-size:12px;">{{ current_user.name[:1]|upper }}</div>
+        <div class="sidebar-label" style="min-width:0;">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ current_user.name }}</div>
+          <div style="font-size:11px;color:var(--text-muted);">🔥 {{ current_user.study_streak }} day streak</div>
+        </div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span class="sidebar-label">Log out</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="flex gap-12" style="align-items:center;">
+        <button class="btn btn-ghost btn-icon" data-sidebar-mobile-toggle style="display:none" data-mobile-only>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <form class="search-box" action="{{ url_for('search.index') }}" method="get">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="search" name="q" placeholder="Search PDFs, chats, flashcards…" value="{{ request.args.get('q','') }}">
+        </form>
+      </div>
+      <div class="flex gap-12" style="align-items:center;">
+        <button class="btn btn-ghost btn-icon" data-theme-toggle title="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="{{ url_for('pdf.upload') }}" class="btn btn-primary btn-sm">+ New Upload</a>
+      </div>
+    </header>
+    <main class="content">
+      {% include "partials/flash_messages.html" %}
+      {% if not current_user.is_email_verified %}
+      <div class="card mb-24" style="border-color:var(--warning); display:flex; align-items:center; gap:12px; padding:14px 18px;">
+        <span style="font-size:18px;">📧</span>
+        <div style="flex:1;">
+          <strong>Your email isn't verified yet.</strong>
+          <span class="text-sm text-muted">Verify it to make sure you can recover your account if you forget your password.</span>
+        </div>
+        <form action="{{ url_for('auth.resend_verification') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary btn-sm">Resend verification email</button>
+        </form>
+      </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/assistant.css') }}">
+{% include "partials/assistant_widget.html" %}
+<script src="{{ url_for('static', filename='js/assistant.js') }}"></script>
+{% endblock %}

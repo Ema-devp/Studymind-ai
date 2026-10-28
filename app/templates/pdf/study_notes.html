@@ -1,0 +1,12 @@
+{% extends "layout_app.html" %}
+{% block title %}Study Notes — {{ pdf.title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">📓 Study Notes</h2>
+<div class="card">
+  <div class="answer-card-body" id="notes-content"></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>document.getElementById('notes-content').innerHTML = marked.parse({{ notes|tojson }});</script>
+{% endblock %}

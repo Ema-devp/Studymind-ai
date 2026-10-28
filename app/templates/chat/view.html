@@ -1,0 +1,123 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ chat.title if chat else 'New Conversation' }} — StudyMind AI{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">{% endblock %}
+{% block content %}
+<div class="chat-shell" data-chat-root
+     data-chat-id="{{ chat.id if chat else '' }}"
+     data-pdf-id="{{ pdf.id }}"
+     style="margin:-28px;">
+  <aside class="chat-sidebar">
+    <div class="flex-between mb-16">
+      <strong style="font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted);">Conversations</strong>
+      <a href="{{ url_for('chat.new_chat', pdf_id=pdf.id) }}" class="btn btn-ghost btn-icon" title="New chat">+</a>
+    </div>
+    {% for c in other_chats %}
+    <a href="{{ url_for('chat.view', chat_id=c.id) }}" class="chat-list-item {{ 'active' if chat and c.id == chat.id }}" data-chat-list-item="{{ c.id }}">
+      {% if c.is_pinned %}<span class="pin-dot">📌</span>{% endif %}
+      <span data-chat-list-title>{{ c.title }}</span>
+    </a>
+    {% endfor %}
+    <div class="divider"></div>
+    <a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="chat-list-item">← Back to {{ pdf.title }}</a>
+  </aside>
+
+  <div class="chat-main">
+    <div class="flex-between" style="padding:14px 24px; border-bottom:1px solid var(--border);">
+      <div style="min-width:0; flex:1;">
+        <div class="flex gap-8" style="align-items:center;">
+          <strong data-chat-title>{{ chat.title if chat else 'New Conversation' }}</strong>
+          {% if chat %}
+          <button type="button" class="btn btn-ghost btn-icon" data-rename-btn title="Rename conversation" style="width:24px; height:24px; padding:0;">✏️</button>
+          {% endif %}
+        </div>
+        <div class="text-sm text-muted">{{ pdf.title }}</div>
+      </div>
+      {% if chat %}
+      <div class="flex gap-8">
+        <form action="{{ url_for('chat.toggle_pin', chat_id=chat.id) }}" method="POST" id="pin-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-ghost btn-icon" title="Pin">{{ '📌' if chat.is_pinned else '📍' }}</button>
+        </form>
+        <a href="{{ url_for('chat.export_chat', chat_id=chat.id) }}" class="btn btn-ghost btn-icon" title="Export">⬇</a>
+        <form action="{{ url_for('chat.delete_chat', chat_id=chat.id) }}" method="POST" data-confirm="Delete this conversation?">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-ghost btn-icon" title="Delete">🗑</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="chat-messages" data-chat-messages>
+      {% if not chat or chat.messages.count() == 0 %}
+        <div class="empty-state">
+          <div style="font-size:34px;">💬</div>
+          <p>Ask anything about <strong>{{ pdf.title }}</strong>. You'll get an answer grounded in the PDF, plus a simple AI explanation.</p>
+        </div>
+      {% endif %}
+      {% if chat %}
+      {% for m in chat.messages %}
+        {% if m.role == 'user' %}
+          <div class="message-row user">
+            <div class="avatar user">You</div>
+            <div class="message-bubble"><div class="bubble-content">{{ m.content }}</div></div>
+          </div>
+        {% else %}
+          <div class="message-row assistant" data-message-id="{{ m.id }}">
+            <div class="avatar assistant">AI</div>
+            <div class="message-bubble">
+              <div class="answer-card pdf-answer">
+                <div class="answer-card-header">📘 Answer From PDF</div>
+                <div class="answer-card-body pdf-answer-body markdown-src" data-md="{{ m.pdf_answer }}"></div>
+              </div>
+              {% if m.ai_explanation %}
+              <div class="answer-card ai-explanation">
+                <div class="answer-card-header">💡 AI Explanation</div>
+                <div class="answer-card-body markdown-src" data-md="{{ m.ai_explanation }}"></div>
+              </div>
+              {% endif %}
+              {% if m.sources %}
+              <div class="sources-list">
+                {% for s in m.sources %}
+                <span class="source-chip" title="{{ s.snippet }}">📄 Page {{ s.page }} · {{ (s.score * 100)|round|int }}%</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+              {% if m.confidence_score is not none %}
+              <div class="confidence-bar">
+                <span>Confidence</span>
+                <div class="confidence-track"><div class="confidence-fill" style="width:{{ (m.confidence_score * 100)|round|int }}%"></div></div>
+                <span>{{ (m.confidence_score * 100)|round|int }}%</span>
+              </div>
+              {% endif %}
+              <div class="message-actions">
+                <button type="button" data-action="copy" title="Copy answer">⧉</button>
+                <button type="button" data-action="regenerate" title="Regenerate">↻</button>
+                <button type="button" data-action="delete" title="Delete">🗑</button>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="chat-input-bar">
+      <form data-chat-form>
+        <div class="chat-input-inner">
+          <textarea data-chat-input rows="1" placeholder="Ask a question about this document… (Enter to send, Shift+Enter for a new line)"></textarea>
+          <button type="submit" class="send-btn" data-chat-send title="Send">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.markdown-src').forEach(el => { el.innerHTML = marked.parse(el.dataset.md || ''); });
+  document.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+</script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

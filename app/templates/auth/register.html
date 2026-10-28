@@ -1,0 +1,30 @@
+{% extends "auth/_auth_base.html" %}
+{% block title %}Sign up — StudyMind AI{% endblock %}
+{% block auth_content %}
+<h2 class="text-center">Create your account</h2>
+<p class="text-center text-sm">Start learning smarter with AI-powered study tools.</p>
+
+<form method="POST" action="{{ url_for('auth.register') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="name">Full name</label>
+    <input type="text" id="name" name="name" value="{{ name or '' }}" required autofocus>
+  </div>
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" value="{{ email or '' }}" required>
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+    <div class="helper-text">At least 8 characters, with uppercase, lowercase, and a number.</div>
+  </div>
+  <div class="field">
+    <label for="confirm_password">Confirm password</label>
+    <input type="password" id="confirm_password" name="confirm_password" required>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+</form>
+
+<p class="text-center text-sm mt-24">Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--brand-1);font-weight:600;">Log in</a></p>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}File Too Large — StudyMind AI{% endblock %}
+{% block body %}
+<div class="auth-shell">
+  <div class="glass auth-card text-center">
+    <div style="font-size:48px;">📦</div>
+    <h2>413 — File Too Large</h2>
+    <p>The file you uploaded exceeds the maximum allowed size (25 MB).</p>
+    <a href="{{ url_for('pdf.upload') if current_user.is_authenticated else url_for('auth.login') }}" class="btn btn-primary">Try Again</a>
+  </div>
+</div>
+{% endblock %}

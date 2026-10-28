@@ -1,0 +1,101 @@
+{% extends "layout_app.html" %}
+{% block title %}Dashboard — StudyMind AI{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-24">
+  <div>
+    <h2>Welcome back, {{ current_user.name.split(' ')[0] }} 👋</h2>
+    <p class="text-sm">Here's what's happening with your studies.</p>
+  </div>
+  <a href="{{ url_for('pdf.upload') }}" class="btn btn-primary">+ Upload PDF</a>
+</div>
+
+<div class="grid grid-4 mb-24">
+  <div class="card stat-card">
+    <div class="stat-icon">📚</div>
+    <div class="stat-value">{{ stats.total_pdfs }}</div>
+    <div class="stat-label">Uploaded PDFs</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-icon">💬</div>
+    <div class="stat-value">{{ stats.total_chats }}</div>
+    <div class="stat-label">Conversations</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-icon">🔥</div>
+    <div class="stat-value">{{ stats.study_streak }}</div>
+    <div class="stat-label">Day Study Streak</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-icon">⏱️</div>
+    <div class="stat-value">{{ stats.minutes_this_week }}</div>
+    <div class="stat-label">Minutes This Week</div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="flex-between mb-16">
+      <h3 style="margin:0;">Recent PDFs</h3>
+      <a href="{{ url_for('pdf.library') }}" class="text-sm" style="color:var(--brand-1);">View all →</a>
+    </div>
+    {% if recent_pdfs %}
+      {% for pdf in recent_pdfs %}
+        <a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="flex-between" style="padding:10px 0; border-bottom:1px solid var(--border);">
+          <div class="flex gap-12" style="align-items:center; min-width:0;">
+            <span style="font-size:20px;">📄</span>
+            <div style="min-width:0;">
+              <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px;">{{ pdf.title }}</div>
+              <div class="text-sm text-muted">{{ pdf.page_count }} pages · {{ pdf.created_at|time_ago }}</div>
+            </div>
+          </div>
+          {% if pdf.processing_status.value == 'completed' %}
+            <span class="badge badge-success">Ready</span>
+          {% elif pdf.processing_status.value == 'processing' %}
+            <span class="badge badge-warning">Processing</span>
+          {% elif pdf.processing_status.value == 'failed' %}
+            <span class="badge badge-danger">Failed</span>
+          {% else %}
+            <span class="badge">Pending</span>
+          {% endif %}
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <div>No PDFs yet. <a href="{{ url_for('pdf.upload') }}" style="color:var(--brand-1);">Upload your first one →</a></div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="flex-between mb-16">
+      <h3 style="margin:0;">Recent Chats</h3>
+    </div>
+    {% if recent_chats %}
+      {% for chat in recent_chats %}
+        <a href="{{ url_for('chat.view', chat_id=chat.id) }}" class="flex-between" style="padding:10px 0; border-bottom:1px solid var(--border);">
+          <div style="min-width:0;">
+            <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;">
+              {{ chat.title }} {% if chat.is_pinned %}📌{% endif %}
+            </div>
+            <div class="text-sm text-muted">{{ chat.pdf.title }} · {{ chat.updated_at|time_ago }}</div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state"><div>No conversations yet.</div></div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card mt-24">
+  <h3>Quick Actions</h3>
+  <div class="grid grid-4">
+    <a href="{{ url_for('pdf.upload') }}" class="btn btn-secondary">📤 Upload PDF</a>
+    <a href="{{ url_for('pdf.library') }}" class="btn btn-secondary">📚 My Library</a>
+    <a href="{{ url_for('search.index') }}" class="btn btn-secondary">🔍 Search Everything</a>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-secondary">⚙️ Settings</a>
+  </div>
+</div>
+
+{% endblock %}

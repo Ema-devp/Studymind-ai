@@ -1,0 +1,26 @@
+{% extends "layout_app.html" %}
+{% block title %}Summary — {{ pdf.title }}{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+
+<div class="flex-between mt-16 mb-16">
+  <h2 style="margin:0;">📝 Summary</h2>
+  <div class="flex gap-8">
+    <a href="{{ url_for('ai.summary', pdf_id=pdf.id, style='short') }}" class="btn btn-sm {{ 'btn-primary' if style=='short' else 'btn-secondary' }}">Short</a>
+    <a href="{{ url_for('ai.summary', pdf_id=pdf.id, style='detailed') }}" class="btn btn-sm {{ 'btn-primary' if style=='detailed' else 'btn-secondary' }}">Detailed</a>
+    <a href="{{ url_for('ai.summary', pdf_id=pdf.id, style='bullet') }}" class="btn btn-sm {{ 'btn-primary' if style=='bullet' else 'btn-secondary' }}">Bullet Points</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="answer-card-body" data-markdown-source id="summary-content"></div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+  document.getElementById('summary-content').innerHTML = marked.parse({{ summary_text|tojson }});
+</script>
+{% endblock %}

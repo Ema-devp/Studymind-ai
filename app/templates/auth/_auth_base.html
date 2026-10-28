@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-shell">
+  {% include "partials/flash_messages.html" %}
+  <div class="glass auth-card">
+    <div class="auth-logo">
+      <div class="brand-mark">S</div>
+      <span class="brand-text" style="font-size:20px;">StudyMind AI</span>
+    </div>
+    {% block auth_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

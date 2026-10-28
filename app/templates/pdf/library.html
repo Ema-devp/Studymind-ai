@@ -1,0 +1,74 @@
+{% extends "layout_app.html" %}
+{% block title %}My PDFs — StudyMind AI{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-24">
+  <div>
+    <h2>My PDFs</h2>
+    <p class="text-sm">{{ pagination.total }} document{{ 's' if pagination.total != 1 }} in your library.</p>
+  </div>
+  <a href="{{ url_for('pdf.upload') }}" class="btn btn-primary">+ Upload PDF</a>
+</div>
+
+<div class="card mb-24">
+  <form method="GET" class="flex gap-12" style="flex-wrap:wrap;">
+    <input type="search" name="q" placeholder="Search by title…" value="{{ search }}" style="flex:1; min-width:200px;">
+    <select name="sort" style="width:auto;">
+      <option value="newest" {{ 'selected' if sort=='newest' }}>Newest first</option>
+      <option value="oldest" {{ 'selected' if sort=='oldest' }}>Oldest first</option>
+      <option value="title" {{ 'selected' if sort=='title' }}>Title A-Z</option>
+      <option value="size" {{ 'selected' if sort=='size' }}>Largest first</option>
+    </select>
+    <select name="status" style="width:auto;">
+      <option value="">All statuses</option>
+      <option value="completed" {{ 'selected' if status=='completed' }}>Completed</option>
+      <option value="processing" {{ 'selected' if status=='processing' }}>Processing</option>
+      <option value="failed" {{ 'selected' if status=='failed' }}>Failed</option>
+      <option value="pending" {{ 'selected' if status=='pending' }}>Pending</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+  </form>
+</div>
+
+{% if pdfs %}
+<div class="grid grid-3">
+  {% for pdf in pdfs %}
+  <div class="card">
+    <div class="flex-between mb-16">
+      <span style="font-size:26px;">📄</span>
+      {% if pdf.processing_status.value == 'completed' %}<span class="badge badge-success">Ready</span>
+      {% elif pdf.processing_status.value == 'processing' %}<span class="badge badge-warning">Processing</span>
+      {% elif pdf.processing_status.value == 'failed' %}<span class="badge badge-danger">Failed</span>
+      {% else %}<span class="badge">Pending</span>{% endif %}
+    </div>
+    <a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}">
+      <h3 style="font-size:16px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ pdf.title }} {% if pdf.is_favorite %}⭐{% endif %}</h3>
+    </a>
+    <div class="text-sm text-muted mb-16">{{ pdf.page_count }} pages · {{ pdf.file_size_bytes|filesize }} · {{ pdf.created_at|time_ago }}</div>
+    <div class="flex gap-8">
+      <a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="btn btn-secondary btn-sm w-full">Open</a>
+      <a href="{{ url_for('pdf.download', pdf_id=pdf.id) }}" class="btn btn-ghost btn-sm btn-icon" title="Download">⬇</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if pagination.pages > 1 %}
+<div class="flex-center gap-8 mt-24">
+  {% for p in pagination.iter_pages() %}
+    {% if p %}
+      <a href="{{ url_for('pdf.library', page=p, q=search, sort=sort, status=status) }}"
+         class="btn btn-sm {{ 'btn-primary' if p == pagination.page else 'btn-secondary' }}">{{ p }}</a>
+    {% else %}<span class="text-muted">…</span>{% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <div style="font-size:40px;">📭</div>
+  <p>No PDFs found. <a href="{{ url_for('pdf.upload') }}" style="color:var(--brand-1);">Upload one to get started →</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

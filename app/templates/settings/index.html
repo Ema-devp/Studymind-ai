@@ -1,0 +1,93 @@
+{% extends "layout_app.html" %}
+{% block title %}Settings — StudyMind AI{% endblock %}
+{% block content %}
+<h2 class="mb-24">Settings</h2>
+
+<div class="grid grid-2" style="max-width:900px;">
+  <div class="card">
+    <h3>Appearance</h3>
+    <form method="POST" action="{{ url_for('settings.index') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field">
+        <label for="theme">Theme</label>
+        <select id="theme" name="theme">
+          <option value="dark" {{ 'selected' if settings.theme == 'dark' }}>Dark</option>
+          <option value="light" {{ 'selected' if settings.theme == 'light' }}>Light</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="language">Language</label>
+        <select id="language" name="language">
+          <option value="en" {{ 'selected' if settings.language == 'en' }}>English</option>
+          <option value="es" {{ 'selected' if settings.language == 'es' }}>Español</option>
+          <option value="fr" {{ 'selected' if settings.language == 'fr' }}>Français</option>
+          <option value="hi" {{ 'selected' if settings.language == 'hi' }}>हिन्दी</option>
+          <option value="ur" {{ 'selected' if settings.language == 'ur' }}>اردو</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+      <h3>AI & Retrieval</h3>
+      <div class="field">
+        <label for="ai_temperature">AI Temperature ({{ settings.ai_temperature }})</label>
+        <input type="range" id="ai_temperature" name="ai_temperature" min="0" max="1" step="0.1" value="{{ settings.ai_temperature }}" oninput="this.previousElementSibling">
+        <div class="helper-text">Lower = more focused/deterministic. Higher = more creative.</div>
+      </div>
+      <div class="field">
+        <label for="chunk_size">Chunk Size (characters)</label>
+        <input type="number" id="chunk_size" name="chunk_size" value="{{ settings.chunk_size }}" min="200" max="3000" step="50">
+      </div>
+      <div class="field">
+        <label for="chunk_overlap">Chunk Overlap (characters)</label>
+        <input type="number" id="chunk_overlap" name="chunk_overlap" value="{{ settings.chunk_overlap }}" min="0" max="500" step="10">
+      </div>
+      <div class="field">
+        <label for="top_k">Top-K Retrieved Chunks</label>
+        <input type="number" id="top_k" name="top_k" value="{{ settings.top_k }}" min="1" max="15">
+      </div>
+
+      <div class="divider"></div>
+      <h3>Study Goals</h3>
+      <div class="field">
+        <label for="daily_goal_minutes">Daily Study Goal (minutes)</label>
+        <input type="number" id="daily_goal_minutes" name="daily_goal_minutes" value="{{ settings.daily_goal_minutes }}" min="5" max="480">
+      </div>
+      <div class="field">
+        <label class="flex gap-8" style="align-items:center;">
+          <input type="checkbox" name="email_notifications" {{ 'checked' if settings.email_notifications }} style="width:auto;">
+          Email notifications
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block mt-16">Save Settings</button>
+    </form>
+  </div>
+
+  <div class="flex" style="flex-direction:column; gap:24px;">
+    <div class="card">
+      <h3>Security</h3>
+      <p class="text-sm">Change your password or manage account security.</p>
+      <a href="{{ url_for('settings.security') }}" class="btn btn-secondary btn-block">Security Settings</a>
+    </div>
+
+    <div class="card">
+      <h3>Your Data</h3>
+      <p class="text-sm">Download a copy of your account data.</p>
+      <a href="{{ url_for('settings.export_data') }}" class="btn btn-secondary btn-block">Export Data (JSON)</a>
+    </div>
+
+    <div class="card" style="border-color:var(--danger);">
+      <h3 style="color:var(--danger);">Danger Zone</h3>
+      <p class="text-sm">Permanently delete your account, PDFs, and all associated data. This cannot be undone.</p>
+      <form method="POST" action="{{ url_for('settings.delete_account') }}" data-confirm="This will permanently delete your account and all data. Continue?">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+          <label for="confirm_email">Type your email to confirm</label>
+          <input type="email" id="confirm_email" name="confirm_email" placeholder="{{ current_user.email }}" required>
+        </div>
+        <button type="submit" class="btn btn-danger btn-block">Delete My Account</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "layout_app.html" %}
+{% block title %}Explain Like I'm 10 — {{ pdf.title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">🧒 Explain Like I'm 10</h2>
+
+<div class="card mb-24" style="max-width:560px;">
+  <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="topic">What concept should I simplify?</label>
+      <input type="text" id="topic" name="topic" value="{{ topic }}" placeholder="e.g. Newton's second law" required autofocus>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Explain It</button>
+  </form>
+</div>
+
+{% if explanation %}
+<div class="card">
+  <div class="answer-card-body" id="eli10-content"></div>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+{% if explanation %}
+<script>document.getElementById('eli10-content').innerHTML = marked.parse({{ explanation|tojson }});</script>
+{% endif %}
+{% endblock %}

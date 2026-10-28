@@ -1,0 +1,9 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="display:none">
+      {% for category, message in messages %}
+        <div data-flash="{{ message }}" data-flash-type="{{ 'error' if category == 'error' else category }}"></div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}

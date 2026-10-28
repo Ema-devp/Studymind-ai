@@ -1,0 +1,72 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ quiz.title }} — StudyMind AI{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('pdf.detail', pdf_id=quiz.pdf_id) }}" class="text-sm" style="color:var(--brand-1);">← Back</a>
+<h2 class="mt-16 mb-24">{{ quiz.title }}</h2>
+
+<div id="quiz-score-banner" class="card mb-24" style="display:none;">
+  <div class="flex-between">
+    <div><strong id="score-text"></strong></div>
+    <button class="btn btn-secondary btn-sm" onclick="location.reload()">Retake</button>
+  </div>
+</div>
+
+<form id="quiz-form">
+  {% for q in questions %}
+  <div class="card mb-16" data-question-card data-question-id="{{ q.id }}">
+    <div class="badge mb-8">{{ loop.index }}</div>
+    <p style="font-weight:600; color:var(--text-primary);">{{ q.question_text }}</p>
+
+    {% if q.question_type == 'mcq' or q.question_type == 'true_false' %}
+      {% for opt in q.options %}
+      <label class="flex gap-12" style="align-items:center; padding:10px 12px; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:8px; cursor:pointer;">
+        <input type="radio" name="q_{{ q.id }}" value="{{ opt }}" style="width:auto;">
+        {{ opt }}
+      </label>
+      {% endfor %}
+    {% else %}
+      <input type="text" name="q_{{ q.id }}" placeholder="Type your answer…">
+    {% endif %}
+
+    <div data-feedback class="text-sm mt-8" style="display:none;"></div>
+  </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary btn-block">Submit Quiz</button>
+</form>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('quiz-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const answers = {};
+  document.querySelectorAll('[data-question-card]').forEach(card => {
+    const qid = card.dataset.questionId;
+    const input = card.querySelector(`[name="q_${qid}"]:checked, input[type="text"][name="q_${qid}"]`);
+    answers[qid] = input ? input.value : '';
+  });
+
+  const res = await fetch("{{ url_for('ai.grade_quiz', quiz_id=quiz.id) }}", {
+    method: 'POST', headers: StudyMind.getCsrfHeaders(), body: JSON.stringify({ answers }),
+  });
+  const data = await res.json();
+  if (!data.success) { StudyMind.toast('Could not grade quiz.', 'error'); return; }
+
+  document.getElementById('quiz-score-banner').style.display = 'block';
+  document.getElementById('score-text').textContent = `Score: ${data.score}/${data.total} (${data.percentage}%)`;
+
+  data.results.forEach(r => {
+    const card = document.querySelector(`[data-question-id="${r.question_id}"]`);
+    const fb = card.querySelector('[data-feedback]');
+    fb.style.display = 'block';
+    fb.innerHTML = r.correct
+      ? `<span class="badge badge-success">Correct ✓</span>`
+      : `<span class="badge badge-danger">Incorrect ✗</span> Correct answer: <strong>${r.correct_answer}</strong>` +
+        (r.explanation ? `<div class="mt-8 text-muted">${r.explanation}</div>` : '');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+{% endblock %}

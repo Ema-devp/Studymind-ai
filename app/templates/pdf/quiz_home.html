@@ -1,0 +1,50 @@
+{% extends "layout_app.html" %}
+{% block title %}Quiz — {{ pdf.title }}{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">✅ Quiz</h2>
+
+<div class="card mb-24" style="max-width:520px;">
+  <h3>Generate New Quiz</h3>
+  <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="quiz_type">Question type</label>
+      <select id="quiz_type" name="quiz_type">
+        <option value="mcq">Multiple Choice</option>
+        <option value="true_false">True / False</option>
+        <option value="fill_blank">Fill in the Blank</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty" name="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="count">Number of questions</label>
+      <input type="number" id="count" name="count" value="10" min="3" max="25">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Generate Quiz</button>
+  </form>
+</div>
+
+<h3 class="mb-16">Previous Quizzes</h3>
+{% if existing_quizzes %}
+<div class="grid grid-3">
+  {% for q in existing_quizzes %}
+  <a href="{{ url_for('ai.take_quiz', quiz_id=q.id) }}" class="card">
+    <strong>{{ q.title }}</strong>
+    <p class="text-sm" style="margin:6px 0 0;">{{ q.questions.count() }} questions · {{ q.quiz_type }} · {{ q.difficulty }}</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div>No quizzes yet. Generate your first one above.</div></div>
+{% endif %}
+
+{% endblock %}

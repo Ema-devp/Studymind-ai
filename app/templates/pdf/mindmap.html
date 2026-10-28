@@ -1,0 +1,44 @@
+{% extends "layout_app.html" %}
+{% block title %}Mind Map — {{ pdf.title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('pdf.detail', pdf_id=pdf.id) }}" class="text-sm" style="color:var(--brand-1);">← Back to {{ pdf.title }}</a>
+<h2 class="mt-16 mb-24">🧠 Mind Map</h2>
+
+<div class="card">
+  <div id="mindmap-root"></div>
+</div>
+
+<style>
+  .mm-node { margin: 4px 0; }
+  .mm-label {
+    display: inline-block; padding: 8px 14px; border-radius: var(--radius-md);
+    background: var(--surface-strong); border: 1px solid var(--border); font-weight: 600; font-size: 13.5px;
+  }
+  .mm-root > .mm-label { background: var(--brand-gradient); color: #0B0B14; font-size: 16px; }
+  .mm-children { margin-left: 26px; padding-left: 18px; border-left: 2px dashed var(--border); margin-top: 8px; }
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+const TREE = {{ tree|tojson }};
+
+function renderNode(node, isRoot=false) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mm-node' + (isRoot ? ' mm-root' : '');
+  const label = document.createElement('span');
+  label.className = 'mm-label';
+  label.textContent = node.title || 'Untitled';
+  wrap.appendChild(label);
+
+  if (node.children && node.children.length) {
+    const childrenWrap = document.createElement('div');
+    childrenWrap.className = 'mm-children';
+    node.children.forEach(child => childrenWrap.appendChild(renderNode(child)));
+    wrap.appendChild(childrenWrap);
+  }
+  return wrap;
+}
+
+document.getElementById('mindmap-root').appendChild(renderNode(TREE, true));
+</script>
+{% endblock %}

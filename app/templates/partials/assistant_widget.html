@@ -1,0 +1,37 @@
+<button type="button" class="assistant-fab" data-assistant-fab title="Ask StudyMind">
+  <svg class="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+  <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+</button>
+
+<div class="assistant-panel glass" data-assistant-panel>
+  <div class="assistant-header">
+    <div class="avatar assistant">AI</div>
+    <div>
+      <div class="assistant-header-title">Ask StudyMind</div>
+      <div class="assistant-header-subtitle">General assistant · not tied to a specific PDF</div>
+    </div>
+    <div class="assistant-header-actions">
+      <button type="button" data-assistant-clear title="Clear conversation">🗑</button>
+      <button type="button" data-assistant-close title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="assistant-messages" data-assistant-messages>
+    <div class="assistant-empty">
+      👋 Hi! I'm your StudyMind assistant.<br>
+      Ask me about using the app, study tips, or anything else -
+      for questions about a specific PDF, open that document's own chat instead.
+    </div>
+  </div>
+
+  <div class="assistant-input-bar">
+    <form data-assistant-form>
+      <div class="assistant-input-inner">
+        <textarea data-assistant-input rows="1" placeholder="Ask anything…"></textarea>
+        <button type="submit" class="assistant-send-btn" data-assistant-send title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

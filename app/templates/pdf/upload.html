@@ -1,0 +1,38 @@
+{% extends "layout_app.html" %}
+{% block title %}Upload PDF — StudyMind AI{% endblock %}
+{% block content %}
+
+<div class="mb-24">
+  <h2>Upload a PDF</h2>
+  <p class="text-sm">We'll extract the text, chunk it, and build a searchable index so you can chat with it.</p>
+</div>
+
+<div class="card" style="max-width:640px;">
+  <form data-upload-form action="{{ url_for('pdf.upload') }}" method="POST" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="title">Title (optional)</label>
+      <input type="text" id="title" name="title" placeholder="Leave blank to use the filename">
+    </div>
+
+    <div data-dropzone class="glass flex-center" style="flex-direction:column; padding:44px 20px; cursor:pointer; border-style:dashed; border-color:var(--border); margin-bottom:16px; text-align:center;">
+      <div style="font-size:38px; margin-bottom:10px;">📤</div>
+      <div style="font-weight:600;">Drag & drop your PDF here, or click to browse</div>
+      <div class="text-sm text-muted mt-8">PDF only · up to 25 MB</div>
+      <div class="text-sm mt-8" data-file-name></div>
+      <input type="file" name="file" accept="application/pdf" data-file-input style="display:none;">
+    </div>
+
+    <div data-upload-progress style="display:none; margin-bottom:16px;">
+      <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Upload & Process</button>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}
